@@ -9,7 +9,12 @@ users ={}
 @socketio.on("connect")
 def handle_connect():
     print("user connected")
-    
+
+@socketio.on("user_join")
+def handle_connect(username):
+    print(f"user {username} connected")
+    users[username] = request.sid
+
 
 
 @app.route('/')
