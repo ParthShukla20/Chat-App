@@ -15,6 +15,15 @@ def handle_connect(username):
     print(f"user {username} connected")
     users[username] = request.sid
 
+@socketio.on("new_message")
+def handle_new_message(message):
+    username = None
+    
+    for user in users:
+        if users[user]==request.sid:
+            username  = user
+    emit("chat",{"message":message, "username":username}, broadcast=True)
+    
 
 
 @app.route('/')
