@@ -23,13 +23,13 @@ def handle_new_message(message):
         if users[user]==request.sid:
             username  = user
     print("New message :{} ".format(message))       
-    emit("chat",{"message":message, "username":username}, broadcast=True)
+    emit("chat",{"message":message, "username":username}, broadcast=True).
     
 
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('base.html')
 
 if __name__ =='__main__':
     socketio.run(app, port=4050, debug = True)

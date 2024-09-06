@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask-SocketIO Example</title>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #e5e5e5;
+        }
+
+        #chat {
+            width: 50%;
+        }
+
+        #chat input {
+            width: 99%;
+        }
+
+        ul {
+            height: 500px;
+            background-color: white;
+            overflow-y: scroll;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        li {
+            list-style: none;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        /* Align messages based on sender */
+        .message-left {
+            background-color: #d1e7dd;
+            text-align: left;
+            float: left;
+            clear: both;
+        }
+
+        .message-right {
+            background-color: #f8d7da;
+            text-align: right;
+            float: right;
+            clear: both;
+        }
+
+        #landing {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="landing">
+        <input type="text" id="username" placeholder="Username">
+        <button id="join-btn">JOIN</button>
+    </div>
+
+    <div id="chat" style="display:none;">
+        <ul id="chat-messages">
+        </ul>
+        <input type="text" id="message" placeholder="Enter a Message">
+    </div>
+
+    <script>
+        const socket = io({autoConnect: false});
+        let currentUser = "";
+
+        document.getElementById("join-btn").addEventListener("click", function() {
+            let username = document.getElementById("username").value;
+            currentUser = username;
+
+            socket.connect();
+
+            socket.on("connect", function() {
+                socket.emit("user_join", username);
+            });
+
+            document.getElementById("chat").style.display = "block";
+            document.getElementById("landing").style.display = "none";
+        });
+
+        document.getElementById("message").addEventListener("keyup", function (event) {
+            if (event.key == "Enter") {
+                let message = document.getElementById("message").value;
+                socket.emit("new_message", message);
+                document.getElementById("message").value = "";
+            }
+        });
+
+        socket.on("chat", function(data) {
+            let ul = document.getElementById("chat-messages");
+            let li = document.createElement("li");
+
+            // Determine the alignment based on whether the message is from the current user
+            if (data["username"] === currentUser) {
+                li.classList.add("message-right");
+            } else {
+                li.classList.add("message-left");
+            }
+
+            li.appendChild(document.createTextNode(data["username"] + ": " + data["message"]));
+            ul.appendChild(li);
+            ul.scrollTop = ul.scrollHeight;
+        });
+    </script>
+</body>
+</html>
